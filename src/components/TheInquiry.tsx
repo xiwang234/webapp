@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { UserProfile, Scenario } from '@/app/page';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type Props = {
   profile: UserProfile;
@@ -11,18 +12,19 @@ type Props = {
   onComplete: () => void;
 };
 
-const analysisSteps = [
-  'Initializing temporal matrix...',
-  'Calculating celestial coordinates...',
-  'Mapping subject-object dynamics...',
-  'Analyzing three transmissions path...',
-  'Evaluating strategic variables...',
-  'Synthesizing decision intelligence...',
-];
-
 export default function TheInquiry({ profile, scenario, onComplete }: Props) {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
+
+  const analysisSteps = [
+    t('inquiry.step1'),
+    t('inquiry.step2'),
+    t('inquiry.step3'),
+    t('inquiry.step4'),
+    t('inquiry.step5'),
+    t('inquiry.step6'),
+  ];
 
   useEffect(() => {
     // Simulate analysis progress
@@ -94,10 +96,10 @@ export default function TheInquiry({ profile, scenario, onComplete }: Props) {
                 <Loader2 className="w-16 h-16 text-primary" />
               </motion.div>
               <h2 className="text-3xl font-display font-bold text-foreground mb-3">
-                The Inquiry
+                {t('inquiry.title')}
               </h2>
               <p className="text-muted-foreground">
-                Computing strategic pathways through the temporal matrix
+                {t('inquiry.subtitle')}
               </p>
             </div>
 
@@ -112,7 +114,7 @@ export default function TheInquiry({ profile, scenario, onComplete }: Props) {
                 />
               </div>
               <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                <span>Analyzing</span>
+                <span>{t('inquiry.analyzing')}</span>
                 <span>{progress}%</span>
               </div>
             </div>
@@ -142,20 +144,20 @@ export default function TheInquiry({ profile, scenario, onComplete }: Props) {
             <div className="mt-12 pt-8 border-t border-border">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Birth Date:</span>
+                  <span className="text-muted-foreground">{t('inquiry.birthDate')}</span>
                   <span className="ml-2 text-foreground font-medium">{profile.birthDate}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Birth Time:</span>
+                  <span className="text-muted-foreground">{t('inquiry.birthTime')}</span>
                   <span className="ml-2 text-foreground font-medium">{profile.birthTime}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Timezone:</span>
+                  <span className="text-muted-foreground">{t('inquiry.timezone')}</span>
                   <span className="ml-2 text-foreground font-medium">{profile.timezone}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Scenario:</span>
-                  <span className="ml-2 text-foreground font-medium capitalize">{scenario}</span>
+                  <span className="text-muted-foreground">{t('inquiry.scenario')}</span>
+                  <span className="ml-2 text-foreground font-medium capitalize">{t(`inquiry.scenario.${scenario}`)}</span>
                 </div>
               </div>
             </div>
@@ -163,7 +165,7 @@ export default function TheInquiry({ profile, scenario, onComplete }: Props) {
         </div>
 
         <p className="text-center text-muted-foreground text-sm mt-6">
-          Backend logic engine processing your unique temporal signature
+          {t('inquiry.footer')}
         </p>
       </motion.div>
     </div>

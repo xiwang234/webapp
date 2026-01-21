@@ -3,81 +3,84 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, TrendingUp, AlertTriangle, CheckCircle, RotateCcw } from 'lucide-react';
 import { Scenario } from '@/app/page';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type Props = {
   scenario: Scenario;
   onReset: () => void;
 };
 
-// Mock data - in production, this comes from your Java backend + Gemini API
-const mockStrategyData = {
-  investment: {
-    efficiency: 78,
-    risk: 42,
-    timeline: [
-      { phase: 'Initial', status: 'Strong Growth Signal', deity: 'Qing-Long (Capital)', color: 'text-emerald-400' },
-      { phase: 'Middle', status: 'Competitive Pressure', deity: 'Bai-Hu (Force)', color: 'text-orange-400' },
-      { phase: 'Final', status: 'Return to Growth', deity: 'Qing-Long (Capital)', color: 'text-emerald-400' },
-    ],
-    summary: 'The temporal matrix indicates a favorable window for capital deployment. Initial momentum is strong, supported by positive market alignment. Mid-phase turbulence is expected due to competitive dynamics, but structural advantages position you for recovery.',
-    actions: [
-      'Execute entry within 72 hours to capture peak momentum',
-      'Allocate 30% reserve for mid-phase volatility hedge',
-      'Set profit-taking threshold at 85% efficiency score',
-      'Monitor for competitive signal reversal in weeks 8-10',
-    ],
-  },
-  career: {
-    efficiency: 65,
-    risk: 58,
-    timeline: [
-      { phase: 'Initial', status: 'Hidden Opportunity', deity: 'Tian-Kong (Void)', color: 'text-purple-400' },
-      { phase: 'Middle', status: 'Power Alignment', deity: 'Gou-Chen (Authority)', color: 'text-blue-400' },
-      { phase: 'Final', status: 'Stable Foundation', deity: 'Teng-She (Structure)', color: 'text-slate-400' },
-    ],
-    summary: 'Career transition shows moderate strategic advantage with patience required. Initial phase reveals non-obvious opportunities requiring deeper exploration. Authority alignment emerges mid-cycle, creating negotiation leverage.',
-    actions: [
-      'Research 3-5 unconventional pathways before committing',
-      'Schedule critical conversations during weeks 4-6',
-      'Document achievements for leverage in negotiations',
-      'Build strategic relationships with decision-makers',
-    ],
-  },
-  negotiation: {
-    efficiency: 82,
-    risk: 35,
-    timeline: [
-      { phase: 'Initial', status: 'Mutual Benefit Signal', deity: 'Tai-Yin (Harmony)', color: 'text-cyan-400' },
-      { phase: 'Middle', status: 'Strategic Clarity', deity: 'Tian-Hou (Nobility)', color: 'text-yellow-400' },
-      { phase: 'Final', status: 'Sustainable Win-Win', deity: 'Liu-He (Alliance)', color: 'text-green-400' },
-    ],
-    summary: 'Negotiation matrix shows exceptional alignment for mutually beneficial outcomes. Harmony indicators suggest counterparty shares strategic interests. High probability of sustainable partnership formation.',
-    actions: [
-      'Lead with collaborative framing in opening statements',
-      'Propose tiered value-exchange structure',
-      'Schedule final agreement signing within 10-day window',
-      'Build long-term relationship mechanisms into contract',
-    ],
-  },
-  timing: {
-    efficiency: 71,
-    risk: 48,
-    timeline: [
-      { phase: 'Initial', status: 'Premature Launch Risk', deity: 'Zhu-Que (Speed)', color: 'text-red-400' },
-      { phase: 'Middle', status: 'Resource Consolidation', deity: 'Gou-Chen (Control)', color: 'text-blue-400' },
-      { phase: 'Final', status: 'Optimal Execution Window', deity: 'Qing-Long (Success)', color: 'text-emerald-400' },
-    ],
-    summary: 'Timing analysis reveals patience will yield superior outcomes. Initial impulse to act should be resisted. Mid-phase requires resource preparation and stakeholder alignment before final execution window opens.',
-    actions: [
-      'Delay launch by 2-3 weeks from original plan',
-      'Use initial phase for stress-testing and preparation',
-      'Consolidate resources and team alignment mid-cycle',
-      'Execute during final window for maximum impact',
-    ],
-  },
-};
-
 export default function StrategyDashboard({ scenario, onReset }: Props) {
+  const { t } = useLanguage();
+  
+  // Mock data structure with translation keys
+  const mockStrategyData = {
+    investment: {
+      efficiency: 78,
+      risk: 42,
+      timeline: [
+        { phase: t('dashboard.phase.initial'), status: t('strategy.investment.timeline.initial.status'), deity: t('strategy.investment.timeline.initial.deity'), color: 'text-emerald-400' },
+        { phase: t('dashboard.phase.middle'), status: t('strategy.investment.timeline.middle.status'), deity: t('strategy.investment.timeline.middle.deity'), color: 'text-orange-400' },
+        { phase: t('dashboard.phase.final'), status: t('strategy.investment.timeline.final.status'), deity: t('strategy.investment.timeline.final.deity'), color: 'text-emerald-400' },
+      ],
+      summary: t('strategy.investment.summary'),
+      actions: [
+        t('strategy.investment.action1'),
+        t('strategy.investment.action2'),
+        t('strategy.investment.action3'),
+        t('strategy.investment.action4'),
+      ],
+    },
+    career: {
+      efficiency: 65,
+      risk: 58,
+      timeline: [
+        { phase: t('dashboard.phase.initial'), status: t('strategy.career.timeline.initial.status'), deity: t('strategy.career.timeline.initial.deity'), color: 'text-purple-400' },
+        { phase: t('dashboard.phase.middle'), status: t('strategy.career.timeline.middle.status'), deity: t('strategy.career.timeline.middle.deity'), color: 'text-blue-400' },
+        { phase: t('dashboard.phase.final'), status: t('strategy.career.timeline.final.status'), deity: t('strategy.career.timeline.final.deity'), color: 'text-slate-400' },
+      ],
+      summary: t('strategy.career.summary'),
+      actions: [
+        t('strategy.career.action1'),
+        t('strategy.career.action2'),
+        t('strategy.career.action3'),
+        t('strategy.career.action4'),
+      ],
+    },
+    negotiation: {
+      efficiency: 82,
+      risk: 35,
+      timeline: [
+        { phase: t('dashboard.phase.initial'), status: t('strategy.negotiation.timeline.initial.status'), deity: t('strategy.negotiation.timeline.initial.deity'), color: 'text-cyan-400' },
+        { phase: t('dashboard.phase.middle'), status: t('strategy.negotiation.timeline.middle.status'), deity: t('strategy.negotiation.timeline.middle.deity'), color: 'text-yellow-400' },
+        { phase: t('dashboard.phase.final'), status: t('strategy.negotiation.timeline.final.status'), deity: t('strategy.negotiation.timeline.final.deity'), color: 'text-green-400' },
+      ],
+      summary: t('strategy.negotiation.summary'),
+      actions: [
+        t('strategy.negotiation.action1'),
+        t('strategy.negotiation.action2'),
+        t('strategy.negotiation.action3'),
+        t('strategy.negotiation.action4'),
+      ],
+    },
+    timing: {
+      efficiency: 71,
+      risk: 48,
+      timeline: [
+        { phase: t('dashboard.phase.initial'), status: t('strategy.timing.timeline.initial.status'), deity: t('strategy.timing.timeline.initial.deity'), color: 'text-red-400' },
+        { phase: t('dashboard.phase.middle'), status: t('strategy.timing.timeline.middle.status'), deity: t('strategy.timing.timeline.middle.deity'), color: 'text-blue-400' },
+        { phase: t('dashboard.phase.final'), status: t('strategy.timing.timeline.final.status'), deity: t('strategy.timing.timeline.final.deity'), color: 'text-emerald-400' },
+      ],
+      summary: t('strategy.timing.summary'),
+      actions: [
+        t('strategy.timing.action1'),
+        t('strategy.timing.action2'),
+        t('strategy.timing.action3'),
+        t('strategy.timing.action4'),
+      ],
+    },
+  };
+
   const data = mockStrategyData[scenario];
 
   return (
@@ -96,7 +99,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
             transition={{ delay: 0.2 }}
             className="text-4xl md:text-5xl font-display font-bold gradient-text mb-4"
           >
-            Strategy Dashboard
+            {t('dashboard.title')}
           </motion.h1>
           <motion.p
             initial={{ y: -20, opacity: 0 }}
@@ -104,7 +107,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
             transition={{ delay: 0.3 }}
             className="text-muted-foreground text-lg capitalize"
           >
-            {scenario} Analysis Complete
+            {t(`dashboard.subtitle.${scenario}`)}
           </motion.p>
         </div>
 
@@ -118,7 +121,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
           >
             <div className="flex items-center gap-3 mb-4">
               <TrendingUp className="w-6 h-6 text-emerald-400" />
-              <h3 className="text-xl font-semibold text-foreground">Efficiency Score</h3>
+              <h3 className="text-xl font-semibold text-foreground">{t('dashboard.efficiency')}</h3>
             </div>
             <div className="flex items-end gap-4">
               <div className="text-6xl font-bold gradient-text">{data.efficiency}</div>
@@ -142,7 +145,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
           >
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-orange-400" />
-              <h3 className="text-xl font-semibold text-foreground">Risk Index</h3>
+              <h3 className="text-xl font-semibold text-foreground">{t('dashboard.risk')}</h3>
             </div>
             <div className="flex items-end gap-4">
               <div className="text-6xl font-bold text-orange-400">{data.risk}</div>
@@ -166,7 +169,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
           transition={{ delay: 0.6 }}
           className="glass-card rounded-2xl p-8 mb-8"
         >
-          <h3 className="text-2xl font-semibold text-foreground mb-6">Evolution Path</h3>
+          <h3 className="text-2xl font-semibold text-foreground mb-6">{t('dashboard.evolution')}</h3>
           <div className="grid md:grid-cols-3 gap-6">
             {data.timeline.map((phase, index) => (
               <div key={phase.phase} className="relative">
@@ -193,7 +196,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
           transition={{ delay: 0.7 }}
           className="glass-card rounded-2xl p-8 mb-8"
         >
-          <h3 className="text-2xl font-semibold text-foreground mb-4">Executive Summary</h3>
+          <h3 className="text-2xl font-semibold text-foreground mb-4">{t('dashboard.summary')}</h3>
           <p className="text-muted-foreground leading-relaxed">{data.summary}</p>
         </motion.div>
 
@@ -204,7 +207,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
           transition={{ delay: 0.8 }}
           className="glass-card rounded-2xl p-8 mb-8"
         >
-          <h3 className="text-2xl font-semibold text-foreground mb-6">Actionable Steps</h3>
+          <h3 className="text-2xl font-semibold text-foreground mb-6">{t('dashboard.actions')}</h3>
           <div className="space-y-4">
             {data.actions.map((action, index) => (
               <motion.div
@@ -233,10 +236,10 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
             className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-secondary text-foreground font-semibold hover:bg-secondary/80 transition-all"
           >
             <RotateCcw className="w-5 h-5" />
-            New Analysis
+            {t('dashboard.newAnalysis')}
           </button>
           <button className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all glow-effect">
-            Export Report
+            {t('dashboard.export')}
             <ArrowRight className="w-5 h-5" />
           </button>
         </motion.div>
@@ -248,7 +251,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
           transition={{ delay: 1.4 }}
           className="text-center text-muted-foreground text-sm mt-12"
         >
-          Strategic intelligence generated by temporal logic engine + AI synthesis
+          {t('dashboard.footer')}
         </motion.p>
       </motion.div>
     </div>

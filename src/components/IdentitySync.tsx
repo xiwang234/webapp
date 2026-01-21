@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Globe } from 'lucide-react';
 import { UserProfile } from '@/app/page';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type Props = {
   onComplete: (profile: UserProfile) => void;
 };
 
 export default function IdentitySync({ onComplete }: Props) {
+  const { t } = useLanguage();
   const [birthDate, setBirthDate] = useState('');
   const [birthTime, setBirthTime] = useState('');
   const [timezone, setTimezone] = useState('UTC+0');
@@ -38,10 +40,10 @@ export default function IdentitySync({ onComplete }: Props) {
             className="mb-6"
           >
             <h1 className="font-display text-5xl md:text-6xl font-bold gradient-text mb-4">
-              Life Strategy AI
+              {t('identity.title')}
             </h1>
             <p className="text-muted-foreground text-lg">
-              Strategic Intelligence for Critical Decisions
+              {t('identity.subtitle')}
             </p>
           </motion.div>
         </div>
@@ -62,9 +64,9 @@ export default function IdentitySync({ onComplete }: Props) {
           </div>
 
           <div className="relative z-10">
-            <h2 className="text-2xl font-semibold mb-2 text-foreground">Identity Sync</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">{t('identity.heading')}</h2>
             <p className="text-muted-foreground mb-8">
-              Your temporal coordinates unlock the strategic matrix
+              {t('identity.description')}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -72,7 +74,7 @@ export default function IdentitySync({ onComplete }: Props) {
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
                   <Calendar className="w-4 h-4 text-primary" />
-                  Birth Date
+                  {t('identity.birthDate')}
                 </label>
                 <input
                   type="date"
@@ -87,7 +89,7 @@ export default function IdentitySync({ onComplete }: Props) {
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
                   <Clock className="w-4 h-4 text-primary" />
-                  Birth Time
+                  {t('identity.birthTime')}
                 </label>
                 <input
                   type="time"
@@ -102,7 +104,7 @@ export default function IdentitySync({ onComplete }: Props) {
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
                   <Globe className="w-4 h-4 text-primary" />
-                  Timezone
+                  {t('identity.timezone')}
                 </label>
                 <select
                   value={timezone}
@@ -110,12 +112,12 @@ export default function IdentitySync({ onComplete }: Props) {
                   className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   required
                 >
-                  <option value="UTC-8">UTC-8 (Pacific)</option>
-                  <option value="UTC-5">UTC-5 (Eastern)</option>
-                  <option value="UTC+0">UTC+0 (London)</option>
-                  <option value="UTC+1">UTC+1 (Central Europe)</option>
-                  <option value="UTC+8">UTC+8 (Asia)</option>
-                  <option value="UTC+9">UTC+9 (Japan)</option>
+                  <option value="UTC-8">{t('identity.timezone.pacific')}</option>
+                  <option value="UTC-5">{t('identity.timezone.eastern')}</option>
+                  <option value="UTC+0">{t('identity.timezone.london')}</option>
+                  <option value="UTC+1">{t('identity.timezone.europe')}</option>
+                  <option value="UTC+8">{t('identity.timezone.asia')}</option>
+                  <option value="UTC+9">{t('identity.timezone.japan')}</option>
                 </select>
               </div>
 
@@ -126,12 +128,12 @@ export default function IdentitySync({ onComplete }: Props) {
                 whileTap={{ scale: 0.98 }}
                 className="w-full bg-primary text-primary-foreground font-semibold py-4 rounded-lg hover:bg-primary/90 transition-all glow-effect"
               >
-                Initialize Matrix
+                {t('identity.submit')}
               </motion.button>
             </form>
 
             <p className="text-xs text-muted-foreground mt-6 text-center">
-              Your data is processed securely and never stored without consent
+              {t('identity.privacy')}
             </p>
           </div>
         </motion.div>
@@ -143,7 +145,7 @@ export default function IdentitySync({ onComplete }: Props) {
           transition={{ delay: 0.8 }}
           className="text-center text-muted-foreground text-sm mt-8"
         >
-          Powered by advanced temporal logic engine
+          {t('identity.footer')}
         </motion.p>
       </motion.div>
     </div>

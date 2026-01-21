@@ -5,6 +5,7 @@ import IdentitySync from '@/components/IdentitySync';
 import ScenarioSelection from '@/components/ScenarioSelection';
 import TheInquiry from '@/components/TheInquiry';
 import StrategyDashboard from '@/components/StrategyDashboard';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export type UserProfile = {
   birthDate: string;
@@ -41,6 +42,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900">
+      <LanguageSwitcher />
       {step === 1 && <IdentitySync onComplete={handleProfileComplete} />}
       {step === 2 && <ScenarioSelection onSelect={handleScenarioSelect} />}
       {step === 3 && userProfile && selectedScenario && (
