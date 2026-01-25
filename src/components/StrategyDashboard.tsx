@@ -7,10 +7,18 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 type Props = {
   scenario: Scenario;
+  strategy?: {
+    efficiency: number;
+    risk: number;
+    timeline: any[];
+    summary: string;
+    actions: string[];
+  };
   onReset: () => void;
+  isHistoryView?: boolean;
 };
 
-export default function StrategyDashboard({ scenario, onReset }: Props) {
+export default function StrategyDashboard({ scenario, strategy, onReset, isHistoryView = false }: Props) {
   const { t } = useLanguage();
   
   // Mock data structure with translation keys
@@ -81,7 +89,8 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
     },
   };
 
-  const data = mockStrategyData[scenario];
+  // Use provided strategy data if available, otherwise use mock data
+  const data = strategy || mockStrategyData[scenario];
 
   return (
     <div className="min-h-screen p-6 py-12">
@@ -236,7 +245,7 @@ export default function StrategyDashboard({ scenario, onReset }: Props) {
             className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-secondary text-foreground font-semibold hover:bg-secondary/80 transition-all"
           >
             <RotateCcw className="w-5 h-5" />
-            {t('dashboard.newAnalysis')}
+            {isHistoryView ? t('history.backToHistory') : t('dashboard.newAnalysis')}
           </button>
           <button className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all glow-effect">
             {t('dashboard.export')}

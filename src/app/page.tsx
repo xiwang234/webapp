@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import IdentitySync from '@/components/IdentitySync';
 import ScenarioSelection from '@/components/ScenarioSelection';
+import EventContextInput from '@/components/EventContextInput';
 import TheInquiry from '@/components/TheInquiry';
 import StrategyDashboard from '@/components/StrategyDashboard';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useConsultationStore } from '@/store/consultationStore';
+import { useAuth } from '@/contexts/AuthContext';
 
 export type UserProfile = {
   birthDate: string;
@@ -16,11 +17,20 @@ export type UserProfile = {
 export type Scenario = 'investment' | 'career' | 'negotiation' | 'timing';
 
 export default function Home() {
-  const [step, setStep] = useState<number>(1);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const { isAuthenticated } = useAuth();
+  const {
+    step,
+    userProfile,
+    selectedScenario,
+    eventContext,
+    setStep,
+    setUserProfile,
+    setSelectedScenario,
+    setEventContext,
+    reset,
+  } = useConsultationStore();
 
-  const handleProfileComplete = (profile: UserProfile) => {
+  const handleIdentityComplete = (profile: UserProfile) => {
     setUserProfile(profile);
     setStep(2);
   };
@@ -30,32 +40,79 @@ export default function Home() {
     setStep(3);
   };
 
-  const handleAnalysisComplete = () => {
+  const handleEventContextComplete = (context: { description: string; additionalDetails?: string }) => {
+    setEventContext(context);
     setStep(4);
   };
 
+  const handleEventContextBack = () => {
+    setStep(2);
+  };
+
+  const handleInquiryComplete = async (strategy: any) => {
+    // Save consultation to database if user is authenticated
+    if (isAuthenticated && userProfile && selectedScenario) {
+      try {
+        await fetch('/api/consultations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            birthDate: userProfile.birthDate,
+            birthTime: userProfile.birthTime,
+            timezone: userProfile.timezone,
+            scenario: selectedScenario,
+            eventContext: eventContext || undefined,
+            efficiencyScore: strategy.efficiency,
+            riskIndex: strategy.risk,
+            timelineData: strategy.timeline,
+            executiveSummary: strategy.summary,
+            actionableSteps: strategy.actions,
+          }),
+        });
+      } catch (error) {
+        console.error('Error saving consultation:', error);
+        // Continue to dashboard even if save fails
+      }
+    }
+
+    setStep(5);
+  };
+
   const handleReset = () => {
-    setStep(1);
-    setUserProfile(null);
-    setSelectedScenario(null);
+    reset();
   };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900">
-      <LanguageSwitcher />
-      {step === 1 && <IdentitySync onComplete={handleProfileComplete} />}
-      {step === 2 && <ScenarioSelection onSelect={handleScenarioSelect} />}
-      {step === 3 && userProfile && selectedScenario && (
-        <TheInquiry 
-          profile={userProfile} 
-          scenario={selectedScenario} 
-          onComplete={handleAnalysisComplete} 
+      {step === 1 && (
+        <IdentitySync onComplete={handleIdentityComplete} />
+      )}
+
+      {step === 2 && (
+        <ScenarioSelection onSelect={handleScenarioSelect} />
+      )}
+
+      {step === 3 && selectedScenario && (
+        <EventContextInput
+          scenario={selectedScenario}
+          onComplete={handleEventContextComplete}
+          onBack={handleEventContextBack}
         />
       )}
-      {step === 4 && selectedScenario && (
-        <StrategyDashboard 
-          scenario={selectedScenario} 
-          onReset={handleReset} 
+
+      {step === 4 && userProfile && selectedScenario && (
+        <TheInquiry
+          profile={userProfile}
+          scenario={selectedScenario}
+          eventContext={eventContext || undefined}
+          onComplete={handleInquiryComplete}
+        />
+      )}
+
+      {step === 5 && selectedScenario && (
+        <StrategyDashboard
+          scenario={selectedScenario}
+          onReset={handleReset}
         />
       )}
     </main>

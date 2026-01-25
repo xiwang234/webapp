@@ -9,10 +9,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 type Props = {
   profile: UserProfile;
   scenario: Scenario;
-  onComplete: () => void;
+  eventContext?: { description: string; additionalDetails?: string };
+  onComplete: (strategy: any) => void;
 };
 
-export default function TheInquiry({ profile, scenario, onComplete }: Props) {
+export default function TheInquiry({ profile, scenario, eventContext, onComplete }: Props) {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -47,7 +48,24 @@ export default function TheInquiry({ profile, scenario, onComplete }: Props) {
     }, 100);
 
     const timeout = setTimeout(() => {
-      onComplete();
+      // Mock strategy data - replace with real backend call
+      const mockStrategy = {
+        efficiency: 78,
+        risk: 42,
+        timeline: [
+          { phase: 'Initial', description: 'Mock data - replace with real analysis' },
+          { phase: 'Middle', description: 'Mock data - replace with real analysis' },
+          { phase: 'Final', description: 'Mock data - replace with real analysis' },
+        ],
+        summary: 'Mock executive summary - replace with real analysis',
+        actions: [
+          'Mock action 1',
+          'Mock action 2',
+          'Mock action 3',
+          'Mock action 4',
+        ],
+      };
+      onComplete(mockStrategy);
     }, 7500);
 
     return () => {

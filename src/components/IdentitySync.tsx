@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Globe } from 'lucide-react';
+import { Calendar, Clock, Globe, Save, Loader2 } from 'lucide-react';
 import { UserProfile } from '@/app/page';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useConsultationStore } from '@/store/consultationStore';
 
 type Props = {
   onComplete: (profile: UserProfile) => void;
@@ -12,15 +14,84 @@ type Props = {
 
 export default function IdentitySync({ onComplete }: Props) {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const { savedProfile, setSavedProfile, useSavedProfile, setUseSavedProfile } = useConsultationStore();
+
   const [birthDate, setBirthDate] = useState('');
   const [birthTime, setBirthTime] = useState('');
   const [timezone, setTimezone] = useState('UTC+0');
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [saveProfileChecked, setSaveProfileChecked] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (birthDate && birthTime && timezone) {
-      onComplete({ birthDate, birthTime, timezone });
+  // Load saved profile on mount if authenticated
+  useEffect(() => {
+    if (isAuthenticated && !savedProfile) {
+      loadSavedProfile();
     }
+  }, [isAuthenticated]);
+
+  // Auto-populate form if using saved profile
+  useEffect(() => {
+    if (useSavedProfile && savedProfile) {
+      setBirthDate(savedProfile.birthDate);
+      setBirthTime(savedProfile.birthTime);
+      setTimezone(savedProfile.timezone);
+    }
+  }, [useSavedProfile, savedProfile]);
+
+  const loadSavedProfile = async () => {
+    setIsLoadingProfile(true);
+    try {
+      const response = await fetch('/api/profile');
+      const data = await response.json();
+
+      if (data.profile) {
+        setSavedProfile(data.profile);
+        setUseSavedProfile(true);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const profile: UserProfile = {
+      birthDate,
+      birthTime,
+      timezone,
+    };
+
+    // Save profile if user is authenticated and checkbox is checked
+    if (isAuthenticated && saveProfileChecked && !useSavedProfile) {
+      setIsSavingProfile(true);
+      try {
+        const response = await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profile),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSavedProfile(data.profile);
+        }
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      } finally {
+        setIsSavingProfile(false);
+      }
+    }
+
+    onComplete(profile);
+  };
+
+  const handleUseSavedProfile = () => {
+    setUseSavedProfile(!useSavedProfile);
   };
 
   return (
@@ -48,6 +119,33 @@ export default function IdentitySync({ onComplete }: Props) {
           </motion.div>
         </div>
 
+        {/* Saved Profile Option */}
+        {isAuthenticated && savedProfile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mb-6 glass-card rounded-xl p-4"
+          >
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={useSavedProfile}
+                onChange={handleUseSavedProfile}
+                className="w-5 h-5 rounded border-border bg-secondary text-primary focus:ring-2 focus:ring-primary/50"
+              />
+              <div className="flex-1">
+                <p className="text-foreground font-medium">
+                  {t('identity.useSavedProfile')}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {savedProfile.birthDate} • {savedProfile.birthTime} • {savedProfile.timezone}
+                </p>
+              </div>
+            </label>
+          </motion.div>
+        )}
+
         {/* Matrix Background Effect */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -69,68 +167,102 @@ export default function IdentitySync({ onComplete }: Props) {
               {t('identity.description')}
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Birth Date */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
-                  <Calendar className="w-4 h-4 text-primary" />
-                  {t('identity.birthDate')}
-                </label>
-                <input
-                  type="date"
-                  value={birthDate}
-                  onChange={(e) => setBirthDate(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  required
-                />
+            {isLoadingProfile ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Birth Date */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
+                    <Calendar className="w-4 h-4 text-primary" />
+                    {t('identity.birthDate')}
+                  </label>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                    required
+                    disabled={useSavedProfile}
+                  />
+                </div>
 
-              {/* Birth Time */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
-                  <Clock className="w-4 h-4 text-primary" />
-                  {t('identity.birthTime')}
-                </label>
-                <input
-                  type="time"
-                  value={birthTime}
-                  onChange={(e) => setBirthTime(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  required
-                />
-              </div>
+                {/* Birth Time */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
+                    <Clock className="w-4 h-4 text-primary" />
+                    {t('identity.birthTime')}
+                  </label>
+                  <input
+                    type="time"
+                    value={birthTime}
+                    onChange={(e) => setBirthTime(e.target.value)}
+                    className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                    required
+                    disabled={useSavedProfile}
+                  />
+                </div>
 
-              {/* Timezone */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
-                  <Globe className="w-4 h-4 text-primary" />
-                  {t('identity.timezone')}
-                </label>
-                <select
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  required
+                {/* Timezone */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-3 text-foreground">
+                    <Globe className="w-4 h-4 text-primary" />
+                    {t('identity.timezone')}
+                  </label>
+                  <select
+                    value={timezone}
+                    onChange={(e) => setTimezone(e.target.value)}
+                    className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                    required
+                    disabled={useSavedProfile}
+                  >
+                    <option value="UTC-8">{t('identity.timezone.pacific')}</option>
+                    <option value="UTC-5">{t('identity.timezone.eastern')}</option>
+                    <option value="UTC+0">{t('identity.timezone.london')}</option>
+                    <option value="UTC+1">{t('identity.timezone.europe')}</option>
+                    <option value="UTC+8">{t('identity.timezone.asia')}</option>
+                    <option value="UTC+9">{t('identity.timezone.japan')}</option>
+                  </select>
+                </div>
+
+                {/* Save Profile Checkbox (only for authenticated users without saved profile) */}
+                {isAuthenticated && !useSavedProfile && (
+                  <div className="pt-4 border-t border-border">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={saveProfileChecked}
+                        onChange={(e) => setSaveProfileChecked(e.target.checked)}
+                        className="w-5 h-5 rounded border-border bg-secondary text-primary focus:ring-2 focus:ring-primary/50"
+                      />
+                      <div className="flex items-center gap-2">
+                        <Save className="w-4 h-4 text-primary" />
+                        <span className="text-foreground">
+                          {t('identity.saveProfile')}
+                        </span>
+                      </div>
+                    </label>
+                    <p className="mt-2 ml-8 text-xs text-muted-foreground">
+                      {t('identity.saveProfileHint')}
+                    </p>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <motion.button
+                  type="submit"
+                  disabled={isSavingProfile}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-primary text-primary-foreground font-semibold py-4 rounded-lg hover:bg-primary/90 transition-all glow-effect disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  <option value="UTC-8">{t('identity.timezone.pacific')}</option>
-                  <option value="UTC-5">{t('identity.timezone.eastern')}</option>
-                  <option value="UTC+0">{t('identity.timezone.london')}</option>
-                  <option value="UTC+1">{t('identity.timezone.europe')}</option>
-                  <option value="UTC+8">{t('identity.timezone.asia')}</option>
-                  <option value="UTC+9">{t('identity.timezone.japan')}</option>
-                </select>
-              </div>
-
-              {/* Submit Button */}
-              <motion.button
-                type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-primary text-primary-foreground font-semibold py-4 rounded-lg hover:bg-primary/90 transition-all glow-effect"
-              >
-                {t('identity.submit')}
-              </motion.button>
-            </form>
+                  {isSavingProfile && <Loader2 className="w-5 h-5 animate-spin" />}
+                  {t('identity.submit')}
+                </motion.button>
+              </form>
+            )}
 
             <p className="text-xs text-muted-foreground mt-6 text-center">
               {t('identity.privacy')}

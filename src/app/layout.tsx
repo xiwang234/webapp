@@ -1,12 +1,11 @@
-import type { Metadata } from "next";
+'use client';
+
 import "./globals.css";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-
-export const metadata: Metadata = {
-  title: "Life Strategy AI - Strategic Intelligence for Life Decisions",
-  description: "Transform complex decisions into actionable strategies using ancient wisdom and modern AI.",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-};
+import { AuthProvider } from "@/contexts/AuthContext";
+import { SessionProvider } from "next-auth/react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Navigation from "@/components/Navigation";
 
 export default function RootLayout({
   children,
@@ -16,9 +15,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="font-sans antialiased">
-        <LanguageProvider>
-          {children}
-        </LanguageProvider>
+        <SessionProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <Navigation />
+              {children}
+            </LanguageProvider>
+          </AuthProvider>
+        </SessionProvider>
       </body>
     </html>
   );
