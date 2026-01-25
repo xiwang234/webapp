@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import {
   Home,
   History,
@@ -57,7 +58,14 @@ export default function Navigation() {
               onClick={() => router.push('/')}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-yellow-600 rounded-lg" />
+              <div className="relative w-8 h-8">
+                <Image
+                  src="/screenshots/pagelogo.png"
+                  alt="Life Strategy AI Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
               <span className="text-xl font-display font-bold gradient-text">
                 Life Strategy AI
               </span>
@@ -129,16 +137,6 @@ export default function Navigation() {
                         exit={{ opacity: 0, y: -10 }}
                         className="absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-xl overflow-hidden"
                       >
-                        <button
-                          onClick={() => {
-                            router.push('/profile');
-                            setShowUserMenu(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-4 py-3 text-foreground hover:bg-secondary/50 transition-all"
-                        >
-                          <Settings className="w-4 h-4" />
-                          {t('nav.profile')}
-                        </button>
                         <button
                           onClick={handleSignOut}
                           className="w-full flex items-center gap-2 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all"
@@ -243,16 +241,6 @@ export default function Navigation() {
 
               {isAuthenticated ? (
                 <>
-                  <button
-                    onClick={() => {
-                      router.push('/profile');
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-foreground hover:bg-secondary/50 rounded-lg transition-all"
-                  >
-                    <Settings className="w-4 h-4" />
-                    {t('nav.profile')}
-                  </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full flex items-center gap-2 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-all"

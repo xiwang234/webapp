@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function IdentitySync({ onComplete }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { isAuthenticated } = useAuth();
   const { savedProfile, setSavedProfile, useSavedProfile, setUseSavedProfile } = useConsultationStore();
 
@@ -183,10 +183,14 @@ export default function IdentitySync({ onComplete }: Props) {
                     type="date"
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
+                    lang={language === 'zh' ? 'zh-CN' : 'en-US'}
                     className="w-full bg-secondary/50 border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                     required
                     disabled={useSavedProfile}
                   />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {t('identity.birthDateFormat')}
+                  </p>
                 </div>
 
                 {/* Birth Time */}

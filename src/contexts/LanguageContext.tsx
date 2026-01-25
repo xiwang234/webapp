@@ -26,6 +26,19 @@ const translations = {
     'common.confirm': 'Confirm',
     'common.loading': 'Loading...',
 
+    // Landing Page
+    'landing.hero.title': 'Strategic Intelligence for Life Decisions',
+    'landing.hero.subtitle': 'Transform critical decisions into strategic advantages',
+    'landing.hero.cta': 'Start Your Analysis',
+    'landing.hero.learnMore': 'Learn More',
+    'landing.carousel.title': 'How It Works',
+    'landing.carousel.step1.title': 'Enter Your Profile',
+    'landing.carousel.step1.desc': 'Provide your birth date, time, and timezone to initialize your temporal matrix',
+    'landing.carousel.step2.title': 'Select Your Challenge',
+    'landing.carousel.step2.desc': 'Choose from investment, career, negotiation, or timing scenarios',
+    'landing.carousel.step3.title': 'Get Strategic Insights',
+    'landing.carousel.step3.desc': 'Receive actionable recommendations based on temporal analysis',
+
     // Navigation
     'nav.home': 'Home',
     'nav.history': 'History',
@@ -91,6 +104,7 @@ const translations = {
     'identity.heading': 'Identity Sync',
     'identity.description': 'Your temporal coordinates unlock the strategic matrix',
     'identity.birthDate': 'Birth Date',
+    'identity.birthDateFormat': 'Format: Y/M/D',
     'identity.birthTime': 'Birth Time',
     'identity.timezone': 'Timezone',
     'identity.timezone.pacific': 'UTC-8 (Pacific)',
@@ -223,6 +237,19 @@ const translations = {
     'common.confirm': '确认',
     'common.loading': '加载中...',
 
+    // Landing Page
+    'landing.hero.title': '为人生决策提供战略智能',
+    'landing.hero.subtitle': '将关键决策转化为战略优势',
+    'landing.hero.cta': '开始分析',
+    'landing.hero.learnMore': '了解更多',
+    'landing.carousel.title': '如何使用',
+    'landing.carousel.step1.title': '输入您的资料',
+    'landing.carousel.step1.desc': '提供您的出生日期、时间和时区以初始化您的时间矩阵',
+    'landing.carousel.step2.title': '选择您的挑战',
+    'landing.carousel.step2.desc': '从投资、职业、谈判或时机场景中选择',
+    'landing.carousel.step3.title': '获取战略洞察',
+    'landing.carousel.step3.desc': '基于时间分析获得可执行的建议',
+
     // Navigation
     'nav.home': '首页',
     'nav.history': '历史记录',
@@ -288,6 +315,7 @@ const translations = {
     'identity.heading': '身份同步',
     'identity.description': '您的时间坐标将解锁战略矩阵',
     'identity.birthDate': '出生日期',
+    'identity.birthDateFormat': '格式：年/月/日',
     'identity.birthTime': '出生时间',
     'identity.timezone': '时区',
     'identity.timezone.pacific': 'UTC-8 (太平洋时区)',

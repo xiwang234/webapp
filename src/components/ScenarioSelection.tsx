@@ -117,6 +117,23 @@ export default function ScenarioSelection({ onSelect }: Props) {
         >
           {t('scenario.footer')}
         </motion.p>
+
+        {/* Progress indicator - 4 steps total */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0 }}
+          className="mt-8 flex justify-center gap-2"
+        >
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className={`h-2 rounded-full transition-all ${
+                i === 2 ? 'w-8 bg-primary' : 'w-2 bg-secondary'
+              }`}
+            />
+          ))}
+        </motion.div>
       </motion.div>
     </div>
   );

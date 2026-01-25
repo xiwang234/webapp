@@ -17,6 +17,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        // 开发环境测试账号 - 直接登录成功
+        if (credentials.email === 'test@11.com' && credentials.password === 'test') {
+          return {
+            id: 'test-user-001',
+            email: 'test@11.com',
+            name: 'Test User',
+          };
+        }
+
         // 使用 Mock 认证服务
         const { user, error } = await mockAuthService.signIn(
           credentials.email,

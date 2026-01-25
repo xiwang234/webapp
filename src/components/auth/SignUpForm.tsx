@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -51,8 +52,20 @@ export default function SignUpForm() {
       if (!response.ok) {
         setError(data.error || t('auth.error.generic'));
       } else {
-        // Redirect to sign in with success message
-        router.push('/auth/signin?registered=true');
+        // Auto sign in after successful registration
+        const signInResult = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          // If auto sign-in fails, redirect to home page
+          router.push('/');
+        } else {
+          // Successfully registered and signed in, redirect to home page
+          router.push('/');
+        }
       }
     } catch (err: any) {
       setError(err.message || t('auth.error.generic'));

@@ -20,6 +20,7 @@ export default function EventContextInput({ scenario, onComplete, onBack }: Prop
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Require description to be filled
     if (description.trim()) {
       onComplete({
         description: description.trim(),
@@ -121,14 +122,14 @@ export default function EventContextInput({ scenario, onComplete, onBack }: Prop
           </form>
         </motion.div>
 
-        {/* Progress indicator */}
+        {/* Progress indicator - 4 steps total */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
           className="mt-8 flex justify-center gap-2"
         >
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
               className={`h-2 rounded-full transition-all ${

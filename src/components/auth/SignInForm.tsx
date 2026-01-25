@@ -30,7 +30,8 @@ export default function SignInForm() {
       if (result?.error) {
         setError(t('auth.error.invalidCredentials'));
       } else {
-        router.push('/');
+        // 登录成功后跳转到分析页面
+        router.push('/analysis');
         router.refresh();
       }
     } catch (err) {
@@ -38,11 +39,6 @@ export default function SignInForm() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    await signIn('google', { callbackUrl: '/' });
   };
 
   return (
@@ -102,27 +98,6 @@ export default function SignInForm() {
             {t('auth.signin.submit')}
           </button>
         </form>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-card text-muted-foreground">
-                {t('auth.or')}
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={isLoading}
-            className="mt-4 w-full bg-secondary text-foreground font-semibold py-3 rounded-lg hover:bg-secondary/80 transition-all disabled:opacity-50"
-          >
-            {t('auth.signin.google')}
-          </button>
-        </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {t('auth.signin.noAccount')}{' '}
