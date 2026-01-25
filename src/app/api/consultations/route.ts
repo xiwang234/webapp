@@ -1,24 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { supabaseAdmin } from '@/lib/supabase';
+import { mockDbService } from '@/lib/mockDb';
 import { z } from 'zod';
 
 const consultationSchema = z.object({
-  birthDate: z.string(),
-  birthTime: z.string(),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  birthTime: z.string().regex(/^\d{2}:\d{2}$/),
   timezone: z.string(),
-  scenario: z.enum(['investment', 'career', 'negotiation', 'timing']),
-  eventContext: z.object({
-    description: z.string(),
-    additionalDetails: z.string().optional(),
-  }).optional(),
-  efficiencyScore: z.number(),
-  riskIndex: z.number(),
-  timelineData: z.any(),
-  executiveSummary: z.string(),
-  actionableSteps: z.array(z.any()),
-  calculationResult: z.any().optional(),
-  geminiResponse: z.any().optional(),
+  scene: z.string(),
+  efficiencyScore: z.number().optional(),
+  riskIndex: z.number().optional(),
+  timelineData: z.any().optional(),
+  summary: z.string().optional(),
+  actionSteps: z.array(z.string()).optional(),
 });
 
 // GET /api/consultations - Fetch user's consultation history
@@ -33,44 +27,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const searchParams = request.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
-    const scenario = searchParams.get('scenario');
+    const scene = searchParams.get('scene') || undefined;
 
-    let query = supabaseAdmin
-      .from('consultations')
-      .select('*', { count: 'exact' })
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (scenario) {
-      query = query.eq('scenario', scenario);
-    }
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      throw error;
-    }
+    const result = await mockDbService.consultations.list(session.user.id, {
+      limit,
+      offset,
+      scene,
+    });
 
     return NextResponse.json({
-      consultations: data.map((c) => ({
+      consultations: result.data.map((c) => ({
         id: c.id,
         birthDate: c.birth_date,
         birthTime: c.birth_time,
         timezone: c.timezone,
-        scenario: c.scenario,
-        eventContext: c.event_context,
+        scene: c.scene,
         efficiencyScore: c.efficiency_score,
         riskIndex: c.risk_index,
-        timelineData: c.timeline_data,
-        executiveSummary: c.executive_summary,
-        actionableSteps: c.actionable_steps,
+        summary: c.summary,
         createdAt: c.created_at,
       })),
-      total: count,
+      total: result.total,
     });
   } catch (error) {
     console.error('Error fetching consultations:', error);
@@ -81,7 +61,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/consultations - Create new consultation record
+// POST /api/consultations - Create a new consultation
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -96,33 +76,30 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = consultationSchema.parse(body);
 
-    const { data, error } = await supabaseAdmin
-      .from('consultations')
-      .insert({
-        user_id: session.user.id,
-        birth_date: validatedData.birthDate,
-        birth_time: validatedData.birthTime,
-        timezone: validatedData.timezone,
-        scenario: validatedData.scenario,
-        event_context: validatedData.eventContext,
-        efficiency_score: validatedData.efficiencyScore,
-        risk_index: validatedData.riskIndex,
-        timeline_data: validatedData.timelineData,
-        executive_summary: validatedData.executiveSummary,
-        actionable_steps: validatedData.actionableSteps,
-        calculation_result: validatedData.calculationResult,
-        gemini_response: validatedData.geminiResponse,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
+    const data = await mockDbService.consultations.create(session.user.id, {
+      birth_date: validatedData.birthDate,
+      birth_time: validatedData.birthTime,
+      timezone: validatedData.timezone,
+      scene: validatedData.scene,
+      efficiency_score: validatedData.efficiencyScore,
+      risk_index: validatedData.riskIndex,
+      timeline_data: validatedData.timelineData,
+      summary: validatedData.summary,
+      action_steps: validatedData.actionSteps,
+    });
 
     return NextResponse.json({
       consultation: {
         id: data.id,
+        birthDate: data.birth_date,
+        birthTime: data.birth_time,
+        timezone: data.timezone,
+        scene: data.scene,
+        efficiencyScore: data.efficiency_score,
+        riskIndex: data.risk_index,
+        timelineData: data.timeline_data,
+        summary: data.summary,
+        actionSteps: data.action_steps,
         createdAt: data.created_at,
       },
     });

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { supabaseAdmin } from '@/lib/supabase';
+import { mockDbService } from '@/lib/mockDb';
 
-// GET /api/consultations/[id] - Fetch single consultation
+// GET /api/consultations/[id] - Get a specific consultation
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -17,21 +17,13 @@ export async function GET(
       );
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('consultations')
-      .select('*')
-      .eq('id', params.id)
-      .eq('user_id', session.user.id)
-      .single();
+    const data = await mockDbService.consultations.get(params.id, session.user.id);
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'Consultation not found' },
-          { status: 404 }
-        );
-      }
-      throw error;
+    if (!data) {
+      return NextResponse.json(
+        { error: 'Consultation not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -40,13 +32,12 @@ export async function GET(
         birthDate: data.birth_date,
         birthTime: data.birth_time,
         timezone: data.timezone,
-        scenario: data.scenario,
-        eventContext: data.event_context,
+        scene: data.scene,
         efficiencyScore: data.efficiency_score,
         riskIndex: data.risk_index,
         timelineData: data.timeline_data,
-        executiveSummary: data.executive_summary,
-        actionableSteps: data.actionable_steps,
+        summary: data.summary,
+        actionSteps: data.action_steps,
         createdAt: data.created_at,
       },
     });
@@ -59,7 +50,7 @@ export async function GET(
   }
 }
 
-// DELETE /api/consultations/[id] - Delete consultation
+// DELETE /api/consultations/[id] - Delete a consultation
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -74,14 +65,13 @@ export async function DELETE(
       );
     }
 
-    const { error } = await supabaseAdmin
-      .from('consultations')
-      .delete()
-      .eq('id', params.id)
-      .eq('user_id', session.user.id);
+    const success = await mockDbService.consultations.delete(params.id, session.user.id);
 
-    if (error) {
-      throw error;
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Consultation not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ success: true });

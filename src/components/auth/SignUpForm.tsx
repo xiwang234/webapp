@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/lib/supabase';
 
 export default function SignUpForm() {
   const { t } = useLanguage();
@@ -34,24 +33,29 @@ export default function SignUpForm() {
     setIsLoading(true);
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            display_name: displayName,
-          },
+      // 调用注册 API
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email,
+          password,
+          displayName,
+        }),
       });
 
-      if (signUpError) {
-        setError(signUpError.message);
-      } else if (data.user) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || t('auth.error.generic'));
+      } else {
         // Redirect to sign in with success message
         router.push('/auth/signin?registered=true');
       }
-    } catch (err) {
-      setError(t('auth.error.generic'));
+    } catch (err: any) {
+      setError(err.message || t('auth.error.generic'));
     } finally {
       setIsLoading(false);
     }

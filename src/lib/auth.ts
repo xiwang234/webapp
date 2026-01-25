@@ -1,13 +1,8 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { createClient } from "@supabase/supabase-js";
 import NextAuth from "next-auth";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+import { mockAuthService } from "./mockAuth";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,20 +17,20 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        // Query Supabase auth.users
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: credentials.email,
-          password: credentials.password,
-        });
+        // 使用 Mock 认证服务
+        const { user, error } = await mockAuthService.signIn(
+          credentials.email,
+          credentials.password
+        );
 
-        if (error || !data.user) {
+        if (error || !user) {
           throw new Error("Invalid email or password");
         }
 
         return {
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.user_metadata?.display_name || null,
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.display_name || null,
         };
       }
     }),

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { supabaseAdmin } from '@/lib/supabase';
+import { mockDbService } from '@/lib/mockDb';
 import { z } from 'zod';
 
 const profileSchema = z.object({
@@ -22,18 +22,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('user_profiles')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .single();
+    const data = await mockDbService.profiles.get(session.user.id);
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // No profile found
-        return NextResponse.json({ profile: null });
-      }
-      throw error;
+    if (!data) {
+      return NextResponse.json({ profile: null });
     }
 
     return NextResponse.json({
@@ -68,24 +60,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = profileSchema.parse(body);
 
-    const { data, error } = await supabaseAdmin
-      .from('user_profiles')
-      .upsert({
-        user_id: session.user.id,
-        birth_date: validatedData.birthDate,
-        birth_time: validatedData.birthTime,
-        timezone: validatedData.timezone,
-        display_name: validatedData.displayName,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id',
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
+    const data = await mockDbService.profiles.upsert(session.user.id, {
+      birth_date: validatedData.birthDate,
+      birth_time: validatedData.birthTime,
+      timezone: validatedData.timezone,
+      display_name: validatedData.displayName,
+    });
 
     return NextResponse.json({
       profile: {
@@ -122,14 +102,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { error } = await supabaseAdmin
-      .from('user_profiles')
-      .delete()
-      .eq('user_id', session.user.id);
-
-    if (error) {
-      throw error;
-    }
+    await mockDbService.profiles.delete(session.user.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,13 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+// Mock mode enabled - Supabase is disabled
+// 使用 Mock 模式，不依赖真实的 Supabase 服务
 
-// Client-side Supabase client (uses anon key)
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+export const SUPABASE_ENABLED = false;
 
-// Server-side Supabase client (uses service role key)
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+// Mock Supabase client for type compatibility
+// 这些是占位符，不会被实际使用
+export const supabase = null as any;
+export const supabaseAdmin = null as any;
