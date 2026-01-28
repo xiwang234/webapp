@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { register } from '@/services/auth-service';
 
 export default function SignUpForm() {
   const { t } = useLanguage();
@@ -21,53 +21,34 @@ export default function SignUpForm() {
     e.preventDefault();
     setError('');
 
+    console.log('[SignUpForm] handleSubmit triggered', { email, displayName });
+
     if (password !== confirmPassword) {
       setError(t('auth.error.passwordMismatch'));
+      console.log('[SignUpForm] password mismatch');
       return;
     }
 
     if (password.length < 8) {
       setError(t('auth.error.passwordTooShort'));
+      console.log('[SignUpForm] password too short');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // 调用注册 API
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          displayName,
-        }),
-      });
+      console.log('[SignUpForm] calling register...');
+      // 调用后端注册接口
+      const message = await register(displayName || email, email, password);
 
-      const data = await response.json();
+      // 注册成功，显示成功消息
+      console.log('[SignUpForm] 注册成功:', message);
 
-      if (!response.ok) {
-        setError(data.error || t('auth.error.generic'));
-      } else {
-        // Auto sign in after successful registration
-        const signInResult = await signIn('credentials', {
-          email,
-          password,
-          redirect: false,
-        });
-
-        if (signInResult?.error) {
-          // If auto sign-in fails, redirect to home page
-          router.push('/');
-        } else {
-          // Successfully registered and signed in, redirect to home page
-          router.push('/');
-        }
-      }
+      // 跳转到登录页（不自动登录，让用户手动登录）
+      router.push('/auth/signin?registered=true');
     } catch (err: any) {
+      console.error('[SignUpForm] register failed:', err);
       setError(err.message || t('auth.error.generic'));
     } finally {
       setIsLoading(false);

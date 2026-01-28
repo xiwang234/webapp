@@ -1,41 +1,54 @@
 'use client';
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { login } from '@/services/auth-service';
 
 export default function SignInForm() {
   const { t } = useLanguage();
+  const { refreshAuth } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // 检查是否从注册页面跳转过来
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      setSuccessMessage(t('auth.signup.success') || 'Registration successful! Please sign in.');
+    }
+  }, [searchParams, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
+    console.log('[SignInForm] handleSubmit triggered', { email });
 
-      if (result?.error) {
-        setError(t('auth.error.invalidCredentials'));
-      } else {
-        // 登录成功后跳转到分析页面
-        router.push('/analysis');
-        router.refresh();
-      }
-    } catch (err) {
-      setError(t('auth.error.generic'));
+    try {
+      console.log('[SignInForm] calling login...');
+      // 调用后端登录接口
+      const authData = await login(email, password);
+
+      console.log('[SignInForm] 登录成功:', authData);
+
+      // 刷新认证状态
+      refreshAuth();
+
+      // 登录成功后跳转到首页
+      router.push('/');
+      router.refresh();
+    } catch (err: any) {
+      console.error('[SignInForm] login failed:', err);
+      setError(err.message || t('auth.error.invalidCredentials'));
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +64,12 @@ export default function SignInForm() {
         <h2 className="text-2xl font-display font-bold text-foreground mb-6">
           {t('auth.signin.title')}
         </h2>
+
+        {successMessage && (
+          <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/50 text-green-400 text-sm">
+            {successMessage}
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/50 text-red-400 text-sm">

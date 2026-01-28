@@ -17,11 +17,10 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { signOut } from 'next-auth/react';
 
 export default function Navigation() {
   const { t, language, setLanguage } = useLanguage();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -32,8 +31,10 @@ export default function Navigation() {
     return null;
   }
 
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/auth/signin' });
+  const handleSignOut = () => {
+    logout();
+    setShowUserMenu(false);
+    setShowMobileMenu(false);
   };
 
   const navItems = [
@@ -126,7 +127,7 @@ export default function Navigation() {
                     className="flex items-center gap-2 px-4 py-2 bg-secondary/50 rounded-lg hover:bg-secondary transition-all"
                   >
                     <User className="w-4 h-4" />
-                    <span className="text-sm">{user?.email?.split('@')[0]}</span>
+                    <span className="text-sm">{user?.username || 'User'}</span>
                   </button>
 
                   <AnimatePresence>
